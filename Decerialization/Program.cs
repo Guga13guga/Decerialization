@@ -1,9 +1,7 @@
 ﻿using Decerialization.Services;
 
 var folder = @"C:\Users\teacher\Desktop\Test";
-
 var file = "Text.json";
-
 var fullPath = Path.Combine(folder, file);
 
 if(!Directory.Exists(folder))

@@ -10,10 +10,10 @@ public class CarService
     public CarService(string fileUrl)
     {
         FileUrl = fileUrl;
-        _cars = LoadFromFile();
+        _cars = LoadFromFileAsync().Result;
     }
 
-    public void AddCar(Car car)
+    public async Task AddCarAsync(Car car)
     {
         //foreach (var item in _cars)
         //{
@@ -27,16 +27,15 @@ public class CarService
         //}
 
         Car carThatExists = _cars.FirstOrDefault(x => x.Id == car.Id);
-
         if (carThatExists != null)
         {
             Console.WriteLine("The car is in the list already");
-        } else
+        }
+        else
         {
             _cars.Add(car);
-            SaveChanges();
+            await SaveChangesAsync();
         }
-
     }
 
     public List<Car> GetCarByName(string name)
@@ -55,7 +54,7 @@ public class CarService
 
     }
 
-    public void DeleteCar(int carId)
+    public async Task DeleteCarAsync(int carId)
     {
 
         var car = _cars.FirstOrDefault(x => x.Id == carId);
@@ -63,8 +62,9 @@ public class CarService
         if (car != null)
         {
             _cars.Remove(car);
-            SaveChanges();
-        } else
+            await SaveChangesAsync();
+        }
+        else
         {
             Console.WriteLine("The car doesnt exist!!!!!!!!!!!!!!!!!!!!");
         }
@@ -77,7 +77,7 @@ public class CarService
     }
 
 
-    private void SaveChanges()
+    private async Task SaveChangesAsync()
     {
         var JsonFormated=JsonSerializer.Serialize<List<Car>>(_cars);
         if(!File.Exists(FileUrl))
@@ -85,10 +85,10 @@ public class CarService
             File.Create(FileUrl).Close();
         }
         using var writer = new StreamWriter(FileUrl);
-        writer.WriteLine(JsonFormated);
+        await writer.WriteLineAsync(JsonFormated);
     }
 
-    private List<Car> LoadFromFile()
+    private async Task<List<Car>> LoadFromFileAsync()
     {
         if (!File.Exists(FileUrl))
         {
@@ -98,7 +98,7 @@ public class CarService
         else
         {
             using var reader = new StreamReader(FileUrl);
-            var allText=reader.ReadToEnd();
+            var allText = await reader.ReadToEndAsync();
             if(allText.Length ==0)
             {
                 return  new List<Car>();
